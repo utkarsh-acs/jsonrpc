@@ -1,0 +1,23 @@
+image: node:14.19.3
+
+pipelines:
+    branches:
+        master:
+            - step:
+                  name: Build and publish to NPM registry
+                  script:
+                      - |
+                          yarn
+                          yarn generateJsonRpc
+                      - |
+                          git clone git@bitbucket.org:cion-digital/cion-js.git
+                          cd cion-js
+                          git config user.name bitbucket-pipelines
+                          git config user.email commits-noreply@bitbucket.org
+                          rm ./src/*
+                          cp ../src/jsonRpc/out/functionsToJsonRpc/* ./src/
+                          git checkout ./src/server.ts
+                          git add --all
+                          git commit -m "sdk update"
+                          git push
+                          cd ..
